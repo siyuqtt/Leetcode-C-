@@ -2,37 +2,38 @@ class LRUCache{
     private:
     int cap;
     list<pair<int,int> > cache; // <key, val>
-    
+    unordered_map<int, list<pair<int,int> >::iterator> itmap;
 public:
     LRUCache(int capacity) {
         cap = capacity;
     }
     
-    list<pair<int, int> >::iterator get_it(int key){
-        return find_if(cache.begin(), cache.end(),[&](pair<int, int> a){ return a.first == key;});
-    }
-    
     int get(int key) {
-        auto it = get_it(key);
-        if(it != cache.end()){
-            return it->second;
+        if(itmap.find(key) != itmap.end()){
+            cache.splice(cache.begin(), cache, itmap[key]);
+            itmap[key] = cache.begin();
+            return itmap[key]->second;
         }else return -1;
     }
     
     void set(int key, int value) {
-        auto it = get_it(key);
-        if(it != cache.end()){
+        
+        if(itmap.find(key) != itmap.end()){
             
-            it->second = value;
-            cache.splice(cache.end(),cache,it);
+            itmap[key]->second = value;
+            cache.splice(cache.begin(),cache, itmap[key]);
+            itmap[key] = cache.begin();
             
         }else{
             
            if(cache.size() == cap ){
             
-                cache.pop_front();
+                itmap.erase(cache.back().first);
+                cache.pop_back();
             } 
-            cache.push_back(make_pair(key,value));
+            cache.push_front(make_pair(key,value));
+            itmap[key] = cache.begin();
+            itmap[key]->second = value;
         }
         
     }
