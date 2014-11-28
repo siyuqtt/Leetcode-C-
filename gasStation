@@ -1,0 +1,20 @@
+class Solution {
+public:
+    int canCompleteCircuit(vector<int> &gas, vector<int> &cost) {
+        int pre = 0;
+        for(int i = 0; i < gas.size() ;i++){
+            bool flag = true;
+            for(int j = i; j < i+gas.size(); j++){
+                pre += gas[j%gas.size()] - cost[j%gas.size()];
+                if(pre < 0){
+                    i = max(int(j%gas.size()),i);
+                    flag = false;
+                    pre = 0;
+                    break;
+                }
+            }
+            if(flag) return i;
+        }
+        return -1;
+    }
+};
